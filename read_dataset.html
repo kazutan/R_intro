@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>データの読み込み</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="site_libs/highlight/default.css"
+      type="text/css" />
+<script src="site_libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="site_style.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.9em;
+  padding-left: 5px;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">R入門</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    はじめに
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="setupR.html">SetUp R</a>
+    </li>
+    <li>
+      <a href="touch_RStudio.html">Rに触れる</a>
+    </li>
+    <li>
+      <a href="R_base_knowledge.html">Rの基礎知識</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    データ操作
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="make_dataset.html">データの作成</a>
+    </li>
+    <li>
+      <a href="read_dataset.html">データの読み込み</a>
+    </li>
+    <li>
+      <a href="data_handling.html">データ整形・加工</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    分析
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">基礎統計</li>
+    <li class="dropdown-header">分散分析</li>
+    <li class="dropdown-header">回帰分析</li>
+    <li class="dropdown-header">多変量解析</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    可視化
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">組み込み関数</li>
+    <li class="dropdown-header">ggplot2</li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">データの読み込み</h1>
+
+</div>
+
+
+<p>Rにデータを読み込む方法を説明します。なおここでは手元にあるファイルから読み込む方法について触れます。リレーショナル・データベースを利用する方法やWebから取得する方法については割愛します。</p>
+<div id="csv" class="section level2">
+<h2>csvファイルからの読み込み</h2>
+<p>一番基本的な方法となります。大きく2つの方法があります。</p>
+<div id="read.csv" class="section level3">
+<h3><code>read.csv()</code>関数を利用</h3>
+<p>例えば、現在の作業ディレクトリに<code>iris-data.csv</code>というファイルがあるとします。これを読み込む場合、以下のコマンドを実行します。</p>
+<pre class="r"><code>df &lt;- read.csv(&quot;iris-data.csv&quot;)</code></pre>
+<p>これを実行すると、<code>df</code>というオブジェクトにcsvファイルの中身が読み込まれます。この場合、以下のような状態となります:</p>
+<ul>
+<li>1行目が変数名として読み込まれる</li>
+<li><code>NA</code>という文字を欠損値となる</li>
+<li>空欄が欠損値となる</li>
+<li>(欠損扱いではない)数値ではない値は文字列として認識
+<ul>
+<li>文字列が含まれる列は(他に数値があっても)全て文字列と判定</li>
+<li>デフォルトの設定では、<strong>Factor型として処理</strong>される</li>
+</ul></li>
+</ul>
+<p>主なデフォルト設定も含めて丁寧に書くと以下のようになります:</p>
+<pre class="r"><code>df &lt;- read.csv(file = &quot;iris-data.csv&quot;, header = TRUE, na.strings = &quot;NA&quot;, stringsAsFactors = default.stringsAsFactors())</code></pre>
+<p>主な引数を説明は以下の通りです:</p>
+<ul>
+<li>file: ファイル名(ファイルパス)。作業ディレクトリからの相対パスで指定します。</li>
+<li>header: 変数名を読み込むかどうか。<code>TRUE</code>なら1行目を変数名として読み込みます。</li>
+<li>na.strings: 欠損値として処理したい値を指定。
+<ul>
+<li>たとえば欠損値として<code>999</code>とか指定して入力していたならば、<code>na.strings = &quot;999&quot;</code></li>
+<li>複数ある場合は、<code>na.strings = c(&quot;999&quot;, &quot;-1&quot;)</code>という感じで指定</li>
+</ul></li>
+<li>stringAsFactors: 文字列の変数をFactor型にするかどうか。
+<ul>
+<li><code>TRUE</code>ならば文字列を含む変数は全てFactor型として処理</li>
+<li><code>FALSE</code>ならば文字列を含む変数は全てCharacter型として処理</li>
+<li>標準でRで設定してあるのは<code>TRUE</code></li>
+<li>個人的には<code>FALSE</code>にしておいて、必要に応じてその変数をFactor型に切り替えてます</li>
+</ul></li>
+</ul>
+</div>
+<div id="rstudioimport-dataset" class="section level3">
+<h3>RStudioの<strong>import Dataset</strong>を利用</h3>
+<p>RStudioを利用すれば、マウス操作でデータセットを読み込むことができます。</p>
+<p><strong>Environment</strong>タブのところにある<strong>import Dataset</strong>をクリックし、<strong>From Local File…</strong>をクリックします</p>
+<div class="figure">
+<img src="pics/import_dataset.png" />
+
+</div>
+<p>その後、以下のダイアログボックスで指定していきます:</p>
+<div class="figure">
+<img src="pics/import_dialog.png" />
+
+</div>
+<p>ポイントになるところの説明です:</p>
+<ul>
+<li>Name: 読み込んだデータを格納するオブジェクト名</li>
+<li>Encoding: 文字コードを指定します。問題なければそのままで。</li>
+<li>Heading: 1行目を変数名として読み込むかどうか。</li>
+<li>NA Strings: NAにする文字列。上述の通り</li>
+<li>Strings as Factors: 文字列をFactor型にするかどううか。上述の通り。</li>
+</ul>
+<p>つまり、コードでやるのをGUIでできる、というイメージです。慣れないうちはこちらのほうがスムーズかもしれません。慣れてきたら<code>read.csv()</code>などコードで読み込ませるのをおすすめします。</p>
+</div>
+</div>
+<div id="excel" class="section level2">
+<h2>Excelファイルからの読み込み</h2>
+<p>Rは標準ではExcelファイルを直接読み込めませんが、{readxl}パッケージを利用すると直接読み込むことができるようになります:</p>
+<pre class="r"><code># パッケージをインストールしてなければインストール
+# install.packages(readr)
+library(readxl)
+xl_df_1 &lt;- read_excel(&quot;xl_data.xlsx&quot;, sheet = &quot;df_1&quot;)</code></pre>
+<p>第一引数が読み込むファイル名、第二引数が読み込むシートです。日本語のデータも対応しているので、特に問題なくいけます。.xlsと.xlsxの両方共に対応し、マシンにExcelがなくても読み込めます。</p>
+</div>
+<div id="spss.sav" class="section level2">
+<h2>SPSSファイル(.sav)からの読み込み</h2>
+<p>Rは標準ではSPSSのファイルを直接読み込めませんが、{haven}パッケージを利用すると直接読み込むことができるようになります:</p>
+<pre class="r"><code># パッケージをインストールしてなければインストール
+# install.packages(haven)
+library(haven)
+sav_df &lt;- read_sav(&quot;hoge.sav&quot;)</code></pre>
+<p>引数には.savファイルを指定してください。なおSPSSにはラベル機能がありますが、この情報は削除されて読み込まれます(たぶん)。</p>
+</div>
+<div class="section level2">
+<h2>その他</h2>
+<p>大量のデータを読み込む場合、<code>read.csv()</code>などでは処理に時間がかかることがあります。高速にデータを読み込むために{readr}などが開発されています。気になる方は調べてみてください。</p>
+<p>また、開発版(Preview版)のRStudioでは<strong>Import Dataset</strong>ボタンからcsv, Excel, SPSSなどを選択してデータをインポートできるようになっています(2016/07/16現在)。これらは上記で紹介したパッケージを組み込んだ機能で、GUIにてデータを読み込めるようになります。これは次回の通常版のアップデートで組み込まれるでしょう。</p>
+<p>このようにRStudioを利用すれば簡単にデータを読みこませることができますが、<strong>極力スクリプトにコードを記述して、データを読みこませる</strong>ようにしてください。この方が「どのデータを読み込んだのか」といったことが明確になり、ファイルを取り違えるといった分析者のミスが減少するからです。</p>
+<p><a href="#">ページのトップへ</a></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

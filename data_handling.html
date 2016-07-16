@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>データの整形・加工</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="site_libs/highlight/default.css"
+      type="text/css" />
+<script src="site_libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="site_style.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.9em;
+  padding-left: 5px;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">R入門</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    はじめに
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="setupR.html">SetUp R</a>
+    </li>
+    <li>
+      <a href="touch_RStudio.html">Rに触れる</a>
+    </li>
+    <li>
+      <a href="R_base_knowledge.html">Rの基礎知識</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    データ操作
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="make_dataset.html">データの作成</a>
+    </li>
+    <li>
+      <a href="read_dataset.html">データの読み込み</a>
+    </li>
+    <li>
+      <a href="data_handling.html">データ整形・加工</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    分析
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">基礎統計</li>
+    <li class="dropdown-header">分散分析</li>
+    <li class="dropdown-header">回帰分析</li>
+    <li class="dropdown-header">多変量解析</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    可視化
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">組み込み関数</li>
+    <li class="dropdown-header">ggplot2</li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">データの整形・加工</h1>
+
+</div>
+
+
+<p>ここでは、読み込んだデータを整形したり加工したりするのによく使う関数を紹介します。なお、ここではデータフレームを念頭においています。</p>
+<div class="section level2">
+<h2>使用するデータ</h2>
+<p>説明で使用するデータフレームとして、Rにもともと組み込まれている<code>iris</code>データを使用します。</p>
+<pre class="r"><code>names(iris)</code></pre>
+<pre><code>## [1] &quot;Sepal.Length&quot; &quot;Sepal.Width&quot;  &quot;Petal.Length&quot; &quot;Petal.Width&quot; 
+## [5] &quot;Species&quot;</code></pre>
+<pre class="r"><code>str(iris)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    150 obs. of  5 variables:
+##  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+##  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+##  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+##  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+##  $ Species     : Factor w/ 3 levels &quot;setosa&quot;,&quot;versicolor&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<pre class="r"><code>head(iris)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa</code></pre>
+</div>
+<div class="section level2">
+<h2>データフレームの要素へのアクセス</h2>
+<p>データフレーム内の要素へアクセス(選択・指定)する方法を紹介します。<strong>これが基本かつ最重要</strong>です。</p>
+<p>データハンドリングは「操作したいターゲットを指定」することが第一歩となります。操作したいターゲットを指定できるのであれば、あとはそれを処理してしまえばいいのです。逆に<strong>これができないと何もできない</strong>こととなります。Excelなどと違い、Rは関数で指定していくため、最初に躓くポイントです。</p>
+<div class="section level3">
+<h3>行番号・列番号を使ったアクセス</h3>
+<p>行番号を指定してアクセスするには、以下のようにやります:</p>
+<pre class="r"><code>iris[3,]  # 3行目(全部)にアクセス</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 3          4.7         3.2          1.3         0.2  setosa</code></pre>
+<p>データフレーム名のすぐ後に角括弧<code>[,]</code>をつけ、その中で数値を指定するとその要素へアクセスできます。<code>[行,列]</code>とイメージしてください。</p>
+<p>列番号を指定してアクセスするには、以下のような感じになります:</p>
+<pre class="r"><code>x &lt;- iris[, 2] # irisの2列目にアクセス
+head(x, 5)  # 長いので上から5つ分取り出す</code></pre>
+<pre><code>## [1] 3.5 3.0 3.2 3.1 3.6</code></pre>
+<p>考え方は行番号で説明したのと同様です。もちろん両方同時に指定してアクセスもできます:</p>
+<pre class="r"><code>iris[3, 2] # 20行目の2列目にアクセス</code></pre>
+<pre><code>## [1] 3.2</code></pre>
+<p>まずは行と列になれましょう。</p>
+</div>
+<div class="section level3">
+<h3>複数の行番号(や列番号)をまとめてアクセス</h3>
+<pre class="r"><code>iris[21:24,]  # 21行目から24行目へアクセス</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 21          5.4         3.4          1.7         0.2  setosa
+## 22          5.1         3.7          1.5         0.4  setosa
+## 23          4.6         3.6          1.0         0.2  setosa
+## 24          5.1         3.3          1.7         0.5  setosa</code></pre>
+<p>行番号を<code>:</code>でつなぐと連番を持ってきます。なお、この<code>:</code>は数値の連番が入ったベクトルを返す演算子です:</p>
+<pre class="r"><code>3:8</code></pre>
+<pre><code>## [1] 3 4 5 6 7 8</code></pre>
+<p>つまり、<code>[ , ]</code>では<strong>数値ベクトルを与えればその数値にアクセスしてくれる</strong>のです:</p>
+<pre class="r"><code>x &lt;- iris[, c(2,5)] # 2列目と5列目へアクセス 
+head(x, 5) # 長いので5行分</code></pre>
+<pre><code>##   Sepal.Width Species
+## 1         3.5  setosa
+## 2         3.0  setosa
+## 3         3.2  setosa
+## 4         3.1  setosa
+## 5         3.6  setosa</code></pre>
+<p><code>c(2,5)</code>は<code>2</code>と<code>5</code>がはいった数値ベクトルなので、2列目と5列目にアクセスするようになります。</p>
+<p>もちろん、両方を同時に指定できます:</p>
+<pre class="r"><code>iris[21:24, c(2, 5)]</code></pre>
+<pre><code>##    Sepal.Width Species
+## 21         3.4  setosa
+## 22         3.7  setosa
+## 23         3.6  setosa
+## 24         3.3  setosa</code></pre>
+</div>
+<div class="section level3">
+<h3>ある列(行)番号を除外してアクセス</h3>
+<p>「ある要素を除外する」という場合には、<code>-</code>を活用します:</p>
+<pre class="r"><code>iris[21:24,-5]  # 21-24行目から、5列目を除外</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 21          5.4         3.4          1.7         0.2
+## 22          5.1         3.7          1.5         0.4
+## 23          4.6         3.6          1.0         0.2
+## 24          5.1         3.3          1.7         0.5</code></pre>
+<p>行番号や列番号は正の整数しか存在しないため、<code>-</code>を負の値とはみなさす、このように処理してくれるんだと思います。<code>:</code>を使った連番では以下のようになります:</p>
+<pre class="r"><code>iris[21:24,-4:-5]  # 21-24行目から4,5列目を除外</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length
+## 21          5.4         3.4          1.7
+## 22          5.1         3.7          1.5
+## 23          4.6         3.6          1.0
+## 24          5.1         3.3          1.7</code></pre>
+<p><code>-4:-5</code>は<code>-4と</code>-5`が入った数値ベクトルを返してくるため、その2つが効果を発揮します。なお、数値ベクトルを準備してそれを除外することもできます:</p>
+<pre class="r"><code>iris[21:24, -c(2, 5)] #21-24行目から2列目と5列目を除外</code></pre>
+<pre><code>##    Sepal.Length Petal.Length Petal.Width
+## 21          5.4          1.7         0.2
+## 22          5.1          1.5         0.4
+## 23          4.6          1.0         0.2
+## 24          5.1          1.7         0.5</code></pre>
+<p>おそらくは最後の例を基本に考えていたほうがいいでしょう。</p>
+</div>
+<div class="section level3">
+<h3>変数名(列名)を使ってアクセス</h3>
+<p>通常、列番号ではなく変数名(列名)を使うことが多いかと思います。この場合、以下のように指定します:</p>
+<pre class="r"><code>x &lt;- iris$Sepal.Width # irisのSepal.Widthにアクセス
+head(x, 3) # 上から3行分</code></pre>
+<pre><code>## [1] 3.5 3.0 3.2</code></pre>
+<p><code>データフレーム名$変数名</code>で指定可能です。なおRStudioなら、この<code>$</code>を入力したら候補が出てきますので、選択が楽になるはずです。もしデータフレーム内の変数リストがほしい時は<code>ls()</code>関数が便利です:</p>
+<pre class="r"><code>ls(iris)  #iris内の変数(オブジェクト)リストを出力</code></pre>
+<pre><code>## [1] &quot;Petal.Length&quot; &quot;Petal.Width&quot;  &quot;Sepal.Length&quot; &quot;Sepal.Width&quot; 
+## [5] &quot;Species&quot;</code></pre>
+</div>
+</div>
+<div id="subset" class="section level2">
+<h2><code>subset()</code>関数を使ってアクセス</h2>
+<p><code>subset()</code>はデータフレームから切り出してサブデータセットを作るイメージです。<code>[ , ]</code>で説明したような内容をスムーズに行なえます。</p>
+<div id="select" class="section level3">
+<h3>selectオプションで列番号指定</h3>
+<pre class="r"><code>x &lt;- subset(iris, select = 2:3) # irisから2:3列目を選択
+head(x, 3) # xの3行分</code></pre>
+<pre><code>##   Sepal.Width Petal.Length
+## 1         3.5          1.4
+## 2         3.0          1.4
+## 3         3.2          1.3</code></pre>
+<p><code>subset()</code>関数の第一引数にデータフレームを指定し、<code>select=</code>引数で列を指定します。考え方は上述の<code>[,]</code>と同様です。</p>
+</div>
+<div id="-1" class="section level3">
+<h3>変数名(列名)を使ってアクセス</h3>
+<pre class="r"><code>x &lt;- subset(iris, select = Sepal.Width) #irisからSepal.Widthを選択
+head(x, 3)</code></pre>
+<pre><code>##   Sepal.Width
+## 1         3.5
+## 2         3.0
+## 3         3.2</code></pre>
+<p>selectに変数名を直接指定することも可能です。文字列(<code>&quot;Sepal.Width&quot;</code>のようなもの)でもOKです。複数の列名を指定してアクセスも可能です:</p>
+<pre class="r"><code>x &lt;- subset(iris, select = c(Sepal.Length,Sepal.Width))
+head(x, 3)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width
+## 1          5.1         3.5
+## 2          4.9         3.0
+## 3          4.7         3.2</code></pre>
+<p>このように、<code>select=</code>にベクトルでもOKとなります。また、変数が並んでいるときなどは、以下のように<code>:</code>を使うこともできます:</p>
+<pre class="r"><code>x &lt;- subset(iris, select = Sepal.Length:Petal.Length)
+head(x, 3)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length
+## 1          5.1         3.5          1.4
+## 2          4.9         3.0          1.4
+## 3          4.7         3.2          1.3</code></pre>
+<p>irisデータはSepal.Lengthが1列目、Petal.Lengthは3行目にあるので、1列目から3列目まで持ってくるようになります。使いドコロとしては、心理尺度などで<code>s101</code>から<code>s110</code>までの変数が並んでいる場合、以下のようにアクセスすることが可能となります:</p>
+<pre class="r"><code># hogeというデータフレームにs101からs110まで並んで入っているとします
+subset(hoge, select = s101:s110)</code></pre>
+<p>また、除外する変数を変数名で指定することも可能です。考え方は<code>[,]</code>と同様で<code>-</code>を利用します:</p>
+<pre class="r"><code>x &lt;- subset(iris, select = -c(Sepal.Length,Species))
+head(x, 2)</code></pre>
+<pre><code>##   Sepal.Width Petal.Length Petal.Width
+## 1         3.5          1.4         0.2
+## 2         3.0          1.4         0.2</code></pre>
+<p>これで除外できます。なお、指定する変数名は文字列ベクトルで与えることができるので、こんな感じで準備することもできます:</p>
+<pre class="r"><code>select_list1 &lt;- paste(&quot;se&quot;, c(1, 3, 5, 8, 10), sep = &quot;&quot;)
+select_list1</code></pre>
+<pre><code>## [1] &quot;se1&quot;  &quot;se3&quot;  &quot;se5&quot;  &quot;se8&quot;  &quot;se10&quot;</code></pre>
+<p>あるいは正規表現を使って、以下のように指定することもできたりします:</p>
+<pre class="r"><code># ls(iris)でiris内の変数名を取得し、その中から「冒頭に&quot;S&quot;がある」ものを持ってくる
+x &lt;- subset(iris, select = grep(&quot;^S&quot;, ls(iris)))
+head(x, 3)</code></pre>
+<pre><code>##   Petal.Length Petal.Width Species
+## 1          1.4         0.2  setosa
+## 2          1.4         0.2  setosa
+## 3          1.3         0.2  setosa</code></pre>
+<p>このあたりは結構応用的で難しく感じるかもしれません。そのうちでいいと思います。</p>
+</div>
+<div class="section level3">
+<h3>レコード(行)に条件を指定してアクセス</h3>
+<p>条件を指定して、レコードを抽出することができます:</p>
+<pre class="r"><code>subset(iris, subset = Sepal.Width&gt;4.0)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 16          5.7         4.4          1.5         0.4  setosa
+## 33          5.2         4.1          1.5         0.1  setosa
+## 34          5.5         4.2          1.4         0.2  setosa</code></pre>
+<p><code>subset = (条件式)</code>で、その条件にマッチするレコード(行)にアクセスします。この場合、「Sepal.Widthが4より大きい行」を抽出してきます。もちろん上述の列を指定する<code>select=</code>と同時に使えます:</p>
+<pre class="r"><code>subset(iris, select = 2:3, subset = Sepal.Width&gt;4.0)</code></pre>
+<pre><code>##    Sepal.Width Petal.Length
+## 16         4.4          1.5
+## 33         4.1          1.5
+## 34         4.2          1.4</code></pre>
+<p>以上は<code>&gt;=</code>で、以下は<code>&lt;=</code>が演算子となります:</p>
+<pre class="r"><code>subset(iris, subset = Sepal.Width&gt;=4.0)</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 15          5.8         4.0          1.2         0.2  setosa
+## 16          5.7         4.4          1.5         0.4  setosa
+## 33          5.2         4.1          1.5         0.1  setosa
+## 34          5.5         4.2          1.4         0.2  setosa</code></pre>
+<p>「~と等しい」という場合には<code>==</code>が演算子となります:</p>
+<pre class="r"><code>x &lt;- subset(iris, subset = Species==&quot;setosa&quot;)
+head(x)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1          5.1         3.5          1.4         0.2  setosa
+## 2          4.9         3.0          1.4         0.2  setosa
+## 3          4.7         3.2          1.3         0.2  setosa
+## 4          4.6         3.1          1.5         0.2  setosa
+## 5          5.0         3.6          1.4         0.2  setosa
+## 6          5.4         3.9          1.7         0.4  setosa</code></pre>
+<p>「<sub>と等しくない(</sub>ではない)」という場合は、<code>!=</code>が演算子となります:</p>
+<pre class="r"><code>x &lt;- subset(iris, subset = Species!=&quot;setosa&quot;)
+x[sample(nrow(x), size = 10),] #ランダムに10行持ってくる</code></pre>
+<pre><code>##     Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+## 140          6.9         3.1          5.4         2.1  virginica
+## 107          4.9         2.5          4.5         1.7  virginica
+## 99           5.1         2.5          3.0         1.1 versicolor
+## 131          7.4         2.8          6.1         1.9  virginica
+## 52           6.4         3.2          4.5         1.5 versicolor
+## 115          5.8         2.8          5.1         2.4  virginica
+## 136          7.7         3.0          6.1         2.3  virginica
+## 67           5.6         3.0          4.5         1.5 versicolor
+## 82           5.5         2.4          3.7         1.0 versicolor
+## 143          5.8         2.7          5.1         1.9  virginica</code></pre>
+<p>もし、「AまたはBのどちらかとマッチするもの」を取り出したい場合、<code>%in%</code>演算子を使います:</p>
+<pre class="r"><code>x &lt;- subset(iris, subset = Species %in% c(&quot;setosa&quot;, &quot;versicolor&quot;))
+x[sample(nrow(x), size = 10),] #ランダムに10行持ってくる</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+## 25          4.8         3.4          1.9         0.2     setosa
+## 21          5.4         3.4          1.7         0.2     setosa
+## 76          6.6         3.0          4.4         1.4 versicolor
+## 30          4.7         3.2          1.6         0.2     setosa
+## 2           4.9         3.0          1.4         0.2     setosa
+## 15          5.8         4.0          1.2         0.2     setosa
+## 89          5.6         3.0          4.1         1.3 versicolor
+## 82          5.5         2.4          3.7         1.0 versicolor
+## 33          5.2         4.1          1.5         0.1     setosa
+## 22          5.1         3.7          1.5         0.4     setosa</code></pre>
+<p>条件が複数ある場合、ANDなら&amp;でつなぎ、ORなら|でつなぎます:</p>
+<pre class="r"><code>subset(iris, subset = Sepal.Width&gt;3.5 &amp; Petal.Width&gt;1.0)</code></pre>
+<pre><code>##     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+## 110          7.2         3.6          6.1         2.5 virginica
+## 118          7.7         3.8          6.7         2.2 virginica
+## 132          7.9         3.8          6.4         2.0 virginica</code></pre>
+<pre class="r"><code>subset(iris, subset = Sepal.Width&gt;4.0 | Petal.Width&gt;2.0)</code></pre>
+<pre><code>##     Sepal.Length Sepal.Width Petal.Length Petal.Width   Species
+## 16           5.7         4.4          1.5         0.4    setosa
+## 33           5.2         4.1          1.5         0.1    setosa
+## 34           5.5         4.2          1.4         0.2    setosa
+## 101          6.3         3.3          6.0         2.5 virginica
+## 103          7.1         3.0          5.9         2.1 virginica
+## 105          6.5         3.0          5.8         2.2 virginica
+## 106          7.6         3.0          6.6         2.1 virginica
+## 110          7.2         3.6          6.1         2.5 virginica
+## 113          6.8         3.0          5.5         2.1 virginica
+## 115          5.8         2.8          5.1         2.4 virginica
+## 116          6.4         3.2          5.3         2.3 virginica
+## 118          7.7         3.8          6.7         2.2 virginica
+## 119          7.7         2.6          6.9         2.3 virginica
+## 121          6.9         3.2          5.7         2.3 virginica
+## 125          6.7         3.3          5.7         2.1 virginica
+## 129          6.4         2.8          5.6         2.1 virginica
+## 133          6.4         2.8          5.6         2.2 virginica
+## 136          7.7         3.0          6.1         2.3 virginica
+## 137          6.3         3.4          5.6         2.4 virginica
+## 140          6.9         3.1          5.4         2.1 virginica
+## 141          6.7         3.1          5.6         2.4 virginica
+## 142          6.9         3.1          5.1         2.3 virginica
+## 144          6.8         3.2          5.9         2.3 virginica
+## 145          6.7         3.3          5.7         2.5 virginica
+## 146          6.7         3.0          5.2         2.3 virginica
+## 149          6.2         3.4          5.4         2.3 virginica</code></pre>
+<p>文字列の部分一致も以下のように実行すればできます:</p>
+<pre class="r"><code>x &lt;- subset(iris, subset = grepl(&quot;sa&quot;, iris$Species))
+x[sample(nrow(x), 10),]</code></pre>
+<pre><code>##    Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 25          4.8         3.4          1.9         0.2  setosa
+## 34          5.5         4.2          1.4         0.2  setosa
+## 4           4.6         3.1          1.5         0.2  setosa
+## 16          5.7         4.4          1.5         0.4  setosa
+## 48          4.6         3.2          1.4         0.2  setosa
+## 1           5.1         3.5          1.4         0.2  setosa
+## 35          4.9         3.1          1.5         0.2  setosa
+## 41          5.0         3.5          1.3         0.3  setosa
+## 24          5.1         3.3          1.7         0.5  setosa
+## 46          4.8         3.0          1.4         0.3  setosa</code></pre>
+<p>詳細は省略します。。</p>
+</div>
+</div>
+<div class="section level2">
+<h2>データの操作</h2>
+<div class="section level3">
+<h3>変数の変換(他の変数へ)</h3>
+<p>既存の変数に処理をして、他の変数へ出す場合は、<code>transform()</code>関数を使用します:</p>
+<pre class="r"><code>x &lt;- transform(iris, kazu=Sepal.Width+5)
+head(x,3)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width Species kazu
+## 1          5.1         3.5          1.4         0.2  setosa  8.5
+## 2          4.9         3.0          1.4         0.2  setosa  8.0
+## 3          4.7         3.2          1.3         0.2  setosa  8.2</code></pre>
+<p>第一引数に元となるデータフレーム、以降に新しい変換した変数を定義します。</p>
+</div>
+<div class="section level3">
+<h3>変数の変換(更新)</h3>
+<p>先の新しい変数名を、既存の変数名にすると、その変数が上書きされて更新されます:</p>
+<pre class="r"><code>x &lt;- transform(x, kazu=Sepal.Width+5)</code></pre>
+<p>基本、「元に戻す」という機能はないので、こういうデータハンドリングはコードをスクリプトに残すようにして履歴をたどれるようにしておいてください。</p>
+</div>
+<div class="section level3">
+<h3>欠損値がある行の除去</h3>
+<p>サンプルとして、以下のデータフレームを準備します:</p>
+<pre><code>##   x1 y1
+## 1  1 11
+## 2  2 12
+## 3  3 NA
+## 4 NA 14
+## 5  5 15</code></pre>
+<p>このデータフレームからNAを含む行を削除するには、以下のようにします:</p>
+<pre class="r"><code>x[complete.cases(x),]</code></pre>
+<pre><code>##   x1 y1
+## 1  1 11
+## 2  2 12
+## 5  5 15</code></pre>
+<p>分析に使う関数によっては、<code>na.rm=</code>という引数が使えることもあるので、各関数のヘルプを確認してください。</p>
+</div>
+<div class="section level3">
+<h3>行和の算出</h3>
+<p>行和(横方向へ足し算)するときは、<code>rowSums()</code>関数を使用します:</p>
+<pre class="r"><code>x &lt;- subset(iris, select = -Species)
+head(x)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          5.1         3.5          1.4         0.2
+## 2          4.9         3.0          1.4         0.2
+## 3          4.7         3.2          1.3         0.2
+## 4          4.6         3.1          1.5         0.2
+## 5          5.0         3.6          1.4         0.2
+## 6          5.4         3.9          1.7         0.4</code></pre>
+<pre class="r"><code>head(rowSums(x))</code></pre>
+<pre><code>##    1    2    3    4    5    6 
+## 10.2  9.5  9.4  9.4 10.2 11.4</code></pre>
+<p>多くの場合、そのデータフレームに新たな列として追加したいでしょうから、以下のような感じになります:</p>
+<pre class="r"><code>x$rsum &lt;- rowSums(x)
+head(x)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width rsum
+## 1          5.1         3.5          1.4         0.2 10.2
+## 2          4.9         3.0          1.4         0.2  9.5
+## 3          4.7         3.2          1.3         0.2  9.4
+## 4          4.6         3.1          1.5         0.2  9.4
+## 5          5.0         3.6          1.4         0.2 10.2
+## 6          5.4         3.9          1.7         0.4 11.4</code></pre>
+<p>上の<code>x$rsum</code>のように、存在しない変数に対してベクトルを放り込むと、新しくその変数(列)が作られます。</p>
+</div>
+<div class="section level3">
+<h3>行平均の算出</h3>
+<p>行平均を算出するときは、<code>rowMeans()</code>関数を利用します。使い方は<code>rowSums()</code>と同様です:</p>
+<pre class="r"><code>x &lt;- subset(iris, select = -Species)
+head(x)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width
+## 1          5.1         3.5          1.4         0.2
+## 2          4.9         3.0          1.4         0.2
+## 3          4.7         3.2          1.3         0.2
+## 4          4.6         3.1          1.5         0.2
+## 5          5.0         3.6          1.4         0.2
+## 6          5.4         3.9          1.7         0.4</code></pre>
+<pre class="r"><code>head(rowMeans(x))</code></pre>
+<pre><code>##     1     2     3     4     5     6 
+## 2.550 2.375 2.350 2.350 2.550 2.850</code></pre>
+<p>実際の場合では、このような使い方になるかと:</p>
+<pre class="r"><code>x$rmean &lt;- rowMeans(x)
+head(x)</code></pre>
+<pre><code>##   Sepal.Length Sepal.Width Petal.Length Petal.Width rmean
+## 1          5.1         3.5          1.4         0.2 2.550
+## 2          4.9         3.0          1.4         0.2 2.375
+## 3          4.7         3.2          1.3         0.2 2.350
+## 4          4.6         3.1          1.5         0.2 2.350
+## 5          5.0         3.6          1.4         0.2 2.550
+## 6          5.4         3.9          1.7         0.4 2.850</code></pre>
+<p>なお、<code>rowSums()</code>も<code>rowMeans()</code>も文字列など計算できない変数が含まれているとエラーを出しますので注意してください。また、<code>na.rm=</code>オプションが使えますので、必要に応じて使ってください。</p>
+</div>
+</div>
+<div class="section level2">
+<h2>データフレームの結合</h2>
+<p>2つのデータフレームを準備します:</p>
+<pre class="r"><code>x &lt;- data.frame(a=1:3,b=c(&quot;A&quot;,&quot;B&quot;,&quot;C&quot;),c=11:13)
+x</code></pre>
+<pre><code>##   a b  c
+## 1 1 A 11
+## 2 2 B 12
+## 3 3 C 13</code></pre>
+<pre class="r"><code>y &lt;- data.frame(a=2:4,b=c(&quot;B&quot;,&quot;C&quot;,&quot;D&quot;),d=12:14)
+y</code></pre>
+<pre><code>##   a b  d
+## 1 2 B 12
+## 2 3 C 13
+## 3 4 D 14</code></pre>
+<p>以降、これを使って説明します。</p>
+<div class="section level3">
+<h3>両方に含まれる列をキーとして結合</h3>
+<p>データフレームを結合するには、<code>merge()</code>関数を使用します:</p>
+<pre class="r"><code>merge(x,y)</code></pre>
+<pre><code>##   a b  c  d
+## 1 2 B 12 12
+## 2 3 C 13 13</code></pre>
+<p>この場合、<code>x</code>と<code>y</code>で共通する変数(この場合<code>a</code>と<code>b</code>)をキー変数として、<strong>その2つが一致する行のみ取り出して結合</strong>させます。片方しかない列は、それぞれ残ることとなります。</p>
+</div>
+<div class="section level3">
+<h3>両方を網羅して結合</h3>
+<p>データを落とすことなく結合させるには、<code>all=TRUE</code>という引数を与えます:</p>
+<pre class="r"><code>merge(x,y,all=TRUE)</code></pre>
+<pre><code>##   a b  c  d
+## 1 1 A 11 NA
+## 2 2 B 12 12
+## 3 3 C 13 13
+## 4 4 D NA 14</code></pre>
+<p>この場合、2つのデータフレームで共通する列をキー変数として結合し、キー変数が一致しないレコード(行)は追加されます。なお値がない部分については<code>NA</code>が入ります。</p>
+</div>
+<div class="section level3">
+<h3>データフレームに行を追加</h3>
+<p>データフレームに行を追加する場合、<code>rbind()</code>関数を使用します:</p>
+</div>
+<div class="section level3">
+<h3>データフレームに列を追加</h3>
+<p>データフレームに列を追加する場合、<code>cbind()</code>関数を使用します:</p>
+</div>
+</div>
+<div class="section level2">
+<h2>パッケージを利用したデータハンドリング</h2>
+<p>最近では、このようなデータハンドリングは専用のパッケージを利用することが多くなっています。この方が効率的に処理でき、また処理が高速な場合が多いためです。</p>
+<p>代表的なパッケージとして、dplyrパッケージがあります。またデータの縦・横変換などに効果を発揮するtidyrパッケージも有用です。この2つの関数の基本的な使い方については、以下のドキュメントを参照してください:</p>
+<p><a href="http://kazutan.github.io/HijiyamaR4/data_handling_d.html">データハンドリング</a></p>
+<p><a href="#">ページのトップへ</a></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

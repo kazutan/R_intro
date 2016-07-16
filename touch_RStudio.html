@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+
+
+
+
+<title>RとRStudioに触れてみよう</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/bootstrap.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+
+<style type="text/css">code{white-space: pre;}</style>
+<link rel="stylesheet"
+      href="site_libs/highlight/default.css"
+      type="text/css" />
+<script src="site_libs/highlight/highlight.js"></script>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs && document.readyState && document.readyState === "complete") {
+   window.setTimeout(function() {
+      hljs.initHighlighting();
+   }, 0);
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+<link rel="stylesheet" href="site_style.css" type="text/css" />
+
+</head>
+
+<body>
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+  height: auto;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+</style>
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+
+<div class="container-fluid main-container">
+
+<!-- tabsets -->
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+</script>
+
+<!-- code folding -->
+
+
+
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.9em;
+  padding-left: 5px;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">R入門</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    はじめに
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="setupR.html">SetUp R</a>
+    </li>
+    <li>
+      <a href="touch_RStudio.html">Rに触れる</a>
+    </li>
+    <li>
+      <a href="R_base_knowledge.html">Rの基礎知識</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    データ操作
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li>
+      <a href="make_dataset.html">データの作成</a>
+    </li>
+    <li>
+      <a href="read_dataset.html">データの読み込み</a>
+    </li>
+    <li>
+      <a href="data_handling.html">データ整形・加工</a>
+    </li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    分析
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">基礎統計</li>
+    <li class="dropdown-header">分散分析</li>
+    <li class="dropdown-header">回帰分析</li>
+    <li class="dropdown-header">多変量解析</li>
+  </ul>
+</li>
+<li class="dropdown">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+    可視化
+     
+    <span class="caret"></span>
+  </a>
+  <ul class="dropdown-menu" role="menu">
+    <li class="dropdown-header">組み込み関数</li>
+    <li class="dropdown-header">ggplot2</li>
+  </ul>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">RとRStudioに触れてみよう</h1>
+
+</div>
+
+
+<div id="rrstudio" class="section level2">
+<h2>R(RStudio)の起動</h2>
+<p>基本、RStudioを起動すればOKです。早速起動させましょう。</p>
+</div>
+<div id="rstudio" class="section level2">
+<h2>RStudioの画面</h2>
+<p>RStudioは主に4つの部分(pane)に分かれています:</p>
+<div class="figure">
+<img src="pics/rstudio_screen.png" />
+
+</div>
+<div id="-console" class="section level3">
+<h3>左下: Console</h3>
+<div class="figure">
+<img src="pics/rstudio_screen_2.png" />
+
+</div>
+<p>Rを対話的に操作するところです。コマンドを記述して実行します。Rに対して「これをやれ」と指示を出し、その結果もまたここに出てきます。</p>
+</div>
+<div id="-source-editor" class="section level3">
+<h3>左上: Source Editor</h3>
+<div class="figure">
+<img src="pics/rstudio_screen_1.png" />
+
+</div>
+<p>Rのスクリプトやファイルなどを編集する場所です。ここで各種ファイルを開き、コードを編集して保存したり、そのコードを実行します。ここでコードを実行すると、その内容がConsoleへ順次送られて実行されます。</p>
+<p>通常、ここでRスクリプトファイル(*.R)を作成して、それを実行して作業をしていきます。よって、おそらくは多くの場合ここが一番利用するところとなるでしょう。</p>
+</div>
+<div id="-file-plots-packages-help" class="section level3">
+<h3>右下: File, Plots, Packages, Helpなど</h3>
+<div class="figure">
+<img src="pics/rstudio_screen_4.png" />
+
+</div>
+<div id="file" class="section level4">
+<h4>File</h4>
+<p>ディレクトリ(フォルダ)にアクセスします。各ファイルをクリックするとその場で開くことができます。また名前の変更やディレクトリ作成などもできます。</p>
+</div>
+<div id="plots" class="section level4">
+<h4>Plots</h4>
+<p>グラフなどを出力すると、ここに表示されます。ある程度遡れますし、ここから画像などにエクスポートすることもできます。</p>
+</div>
+<div id="packages" class="section level4">
+<h4>Packages</h4>
+<p>Rの拡張パッケージを管理できます。<strong>Rはパッケージがポイント</strong>になるので、頻繁に利用します。「パッケージとは何か」については後述します。</p>
+</div>
+<div id="help" class="section level4">
+<h4>Help</h4>
+<p>ヘルプウィンドウで、Rの関数などを検索したり、その組み込みのヘルプを閲覧することができます。ただあまりここから検索することは少なく、Consoleで <code>?help</code> というようにしてヘルプを表示させるのがメインです</p>
+</div>
+</div>
+<div id="-environment-history" class="section level3">
+<h3>右上: Environment, Historyなど</h3>
+<div class="figure">
+<img src="pics/rstudio_screen_3.png" />
+
+</div>
+<div id="environment" class="section level4">
+<h4>Environment</h4>
+<p>Rの<strong>環境</strong>を表示します。とりあえずは「今Rで読み込んだり作ったりしてるデータや変数といったものが見れる」と考えておいてください。</p>
+</div>
+<div id="history" class="section level4">
+<h4>History</h4>
+<p>Consoleで実行した内容の履歴です。ここから再度Consoleに送ったり、Scriptに送ったりすることもできます。</p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2>まずはとにかく触ってみよう</h2>
+<p>まず、Rを使うとどんな感じになるのか、試しに触ってみましょう。それぞれの解説については後述します。</p>
+<div class="section level3">
+<h3>データの読み込み</h3>
+<p>Rでデータを読みこませる場合、csvファイルからが一般的です。ここでは、“iris-data.csv”というファイルを読み込みます。</p>
+<p>Consoleで以下を入力してEnterで実行しましょう:</p>
+<pre class="r"><code>iris.data &lt;- read.csv(&quot;iris-data.csv&quot;)</code></pre>
+<p>これでデータが読み込まれます。RStudio右上のEnvironmentのところに、<code>iris.data</code>というのが出てきているはずです。</p>
+</div>
+<div class="section level3">
+<h3>データ構造を確認</h3>
+<p>Environmentのところにある<code>iris.data</code>をクリックすると、そのデータセットを見ることができます。</p>
+<div class="figure">
+<img src="pics/data_view.png" />
+
+</div>
+<p>また、Consoleで以下のコードを入力してEnterで実行しましょう:</p>
+<pre class="r"><code>str(iris.data)</code></pre>
+<pre><code>## &#39;data.frame&#39;:    150 obs. of  5 variables:
+##  $ Sepal.Length: num  5.1 4.9 4.7 4.6 5 5.4 4.6 5 4.4 4.9 ...
+##  $ Sepal.Width : num  3.5 3 3.2 3.1 3.6 3.9 3.4 3.4 2.9 3.1 ...
+##  $ Petal.Length: num  1.4 1.4 1.3 1.5 1.4 1.7 1.4 1.5 1.4 1.5 ...
+##  $ Petal.Width : num  0.2 0.2 0.2 0.2 0.2 0.4 0.3 0.2 0.2 0.1 ...
+##  $ Species     : Factor w/ 3 levels &quot;setosa&quot;,&quot;versicolor&quot;,..: 1 1 1 1 1 1 1 1 1 1 ...</code></pre>
+<p><code>iris.data</code>として読み込んだデータの内容が表示されます。細かいところは省略しますが、大体はつかめるかと思います。</p>
+</div>
+<div class="section level3">
+<h3>集計</h3>
+<p>それでは、現在Rにある<code>iris.data</code>というデータセットについて、平均や中央値、最大最小など集計してみましょう。Consoleで以下のコードを入力して実行してください:</p>
+<pre class="r"><code>summary(iris.data)</code></pre>
+<pre><code>##   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width   
+##  Min.   :4.300   Min.   :2.000   Min.   :1.000   Min.   :0.100  
+##  1st Qu.:5.100   1st Qu.:2.800   1st Qu.:1.600   1st Qu.:0.300  
+##  Median :5.800   Median :3.000   Median :4.350   Median :1.300  
+##  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.199  
+##  3rd Qu.:6.400   3rd Qu.:3.300   3rd Qu.:5.100   3rd Qu.:1.800  
+##  Max.   :7.900   Max.   :4.400   Max.   :6.900   Max.   :2.500  
+##        Species  
+##  setosa    :50  
+##  versicolor:50  
+##  virginica :50  
+##                 
+##                 
+## </code></pre>
+<p>各変数の基礎統計が算出され、表示されたかと思います。</p>
+</div>
+<div class="section level3">
+<h3>分析</h3>
+<p>それでは、Speciesを独立変数、Sepal.Lengthを従属変数とする1要因3水準の分散分析を実施してみます:</p>
+<pre class="r"><code>result &lt;- aov(Sepal.Length ~ Species, data = iris.data)</code></pre>
+<p>これで分散分析の結果がresultに入ってます。ではこの結果の分散分析表を確認します:</p>
+<pre class="r"><code>summary(result)</code></pre>
+<pre><code>##              Df Sum Sq Mean Sq F value Pr(&gt;F)    
+## Species       2  63.21  31.606   119.3 &lt;2e-16 ***
+## Residuals   147  38.96   0.265                   
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>それではこれを多重比較してみます。まずはholmで:</p>
+<pre class="r"><code>pairwise.t.test(iris.data$Sepal.Length, iris.data$Species)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  iris.data$Sepal.Length and iris.data$Species 
+## 
+##            setosa  versicolor
+## versicolor 1.8e-15 -         
+## virginica  &lt; 2e-16 2.8e-09   
+## 
+## P value adjustment method: holm</code></pre>
+<p>次にTukeyのHSDで:</p>
+<pre class="r"><code>TukeyHSD(result)</code></pre>
+<pre><code>##   Tukey multiple comparisons of means
+##     95% family-wise confidence level
+## 
+## Fit: aov(formula = Sepal.Length ~ Species, data = iris.data)
+## 
+## $Species
+##                       diff       lwr       upr p adj
+## versicolor-setosa    0.930 0.6862273 1.1737727     0
+## virginica-setosa     1.582 1.3382273 1.8257727     0
+## virginica-versicolor 0.652 0.4082273 0.8957727     0</code></pre>
+</div>
+<div class="section level3">
+<h3>図示</h3>
+<p>これらの結果を図示します。まずは各水準ごとで要約統計量算出:</p>
+<pre class="r"><code>by(iris.data$Sepal.Length, iris.data$Species, summary)</code></pre>
+<pre><code>## iris.data$Species: setosa
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.300   4.800   5.000   5.006   5.200   5.800 
+## -------------------------------------------------------- 
+## iris.data$Species: versicolor
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.900   5.600   5.900   5.936   6.300   7.000 
+## -------------------------------------------------------- 
+## iris.data$Species: virginica
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   4.900   6.225   6.500   6.588   6.900   7.900</code></pre>
+<p>これを箱ひげ図でプロット:</p>
+<pre class="r"><code>plot(iris.data$Species, iris.data$Sepal.Length)</code></pre>
+<p><img src="touch_RStudio_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+</div>
+</div>
+<div class="section level2">
+<h2>分析の流れ</h2>
+<p>結局のところ、分析の流れは以下のようになるかと思います。</p>
+<ol style="list-style-type: decimal">
+<li>データの作成
+<ul>
+<li>入力など</li>
+</ul></li>
+<li>データの読み込み
+<ul>
+<li>何らかのファイルなどからRに読み込む</li>
+</ul></li>
+<li>データの整形
+<ul>
+<li>不適切なデータの除去、計算項目など</li>
+</ul></li>
+<li>データの集計
+<ul>
+<li>データの要約、可視化など</li>
+</ul></li>
+<li>データの分析
+<ul>
+<li>それぞれの分析の実行</li>
+</ul></li>
+<li>結果の可視化
+<ul>
+<li>Plotする</li>
+</ul></li>
+</ol>
+<p>この資料も、この流れを意識して作成しています。</p>
+<p><a href="#">ページのトップへ</a></p>
+</div>
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+$(document).ready(function () {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+});
+
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,39 @@
+name: "R入門"
+navbar:
+  title: "R入門"
+  left:
+    - text: "はじめに"
+      menu:
+        - text: "SetUp R"
+          href: setupR.html
+        - text: "Rに触れる"
+          href: touch_RStudio.html
+        - text: "Rの基礎知識"
+          href: R_base_knowledge.html
+    - text: "データ操作"
+      menu:
+        - text: "データの作成"
+          href: make_dataset.html
+        - text: "データの読み込み"
+          href: read_dataset.html
+        - text: "データ整形・加工"
+          href: data_handling.html
+    - text: "分析"
+      menu:
+        - text: "基礎統計"
+        - text: "分散分析"
+        - text: "回帰分析"
+        - text: "多変量解析"
+    - text: "可視化"
+      menu:
+        - text: "組み込み関数"
+        - text: "ggplot2"
+output_dir: "."
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+    toc_depth: 3
+    css: site_style.css
+    md_extentions: -ascii_identifiers
+#    number_section: true

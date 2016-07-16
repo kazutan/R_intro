@@ -1,0 +1,12 @@
+/* additional font setting */
+
+h2 {
+  color: #00a;
+  margin-top: 0.25em;
+  border-bottom: 1px solid #00a;
+}
+
+h3 {
+  color: #00a;
+  margin-top: 0.2em;
+}
